@@ -1,0 +1,20 @@
+body {
+  background-color: #DADADA;
+}
+.landing_grid {
+  height: 100%;
+}
+.landing_grid .image {
+  margin-top: -100px;
+}
+.landing_grid .column {
+  max-width: 450px;
+}
+.link-singer {
+  margin-right: 4px;
+}
+.app-footer {
+  padding: 20px;
+  text-align: center;
+}
+/*# sourceMappingURL=app.css.map */
