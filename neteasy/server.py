@@ -36,12 +36,19 @@ def _scan():
     files = list(scanner.scan())
     scan_total = len(files)
     scan_completed = 0
-    for f in files:
-        if not CacheScanner.check_file_md5(f.path, f.md5):
-            print('[Warning] %s is corrupted' % repr(f))
+    for file in files:
+        if not CacheScanner.check_file_md5(file.path, file.md5):
+            print('[Warning] %s is corrupted' % repr(file))
+            scan_completed += 1
             continue
-        meta = _get_meta_info(f.mid)
-        music = Music(f.mid, meta, f)
+        try:
+            meta = _get_meta_info(file.mid)
+        except Exception as e:
+            print("[Warning] Failed to get the meta data of music (id=%s)" % file.mid)
+            print(e)
+            scan_completed += 1
+            continue
+        music = Music(file.mid, meta, file)
         music_list.append(music)
         scan_completed += 1
     scanning = False
