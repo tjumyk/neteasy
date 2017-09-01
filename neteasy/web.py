@@ -17,27 +17,20 @@ class WebInfoExtractor:
         e_content = e_info.select('.cnt')[0]
         title = e_content.select('.hd .tit em')[0].get_text()
 
-        singers = []
+        singers = {}
         album = None
-        e_descriptions = e_content.select('.des')
-        for e_desc in e_descriptions:
-            text = e_desc.get_text()
-            if '歌手' in text:
-                for a in e_desc.select('a'):
-                    href = a['href']
-                    if href.startswith('/artist?'):
-                        singer_id = href.split('=')[-1]
-                        singer_name = a.get_text()
-                        singers.append(Singer(singer_id, singer_name))
-            elif '专辑' in text:
-                for a in e_desc.select('a'):
-                    href = a['href']
-                    if href.startswith('/album?'):
-                        album_id = href.split('=')[-1]
-                        album_title = a.get_text()
-                        album = Album(album_id, album_title)
-                        break
-        return MusicMetaInfo(mid, title, singers, album, cover_img)
+        e_desc_links = e_content.select('.des a')
+        for a in e_desc_links:
+            href = a['href']
+            if href.startswith('/artist?'):
+                singer_id = href.split('=')[-1]
+                singer_name = a.get_text()
+                singers[singer_id] = Singer(singer_id, singer_name)
+            elif href.startswith('/album?'):
+                album_id = href.split('=')[-1]
+                album_title = a.get_text()
+                album = Album(album_id, album_title)
+        return MusicMetaInfo(mid, title, list(singers.values()), album, cover_img)
 
 
 if __name__ == '__main__':
