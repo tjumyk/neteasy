@@ -30,6 +30,7 @@ class WebInfoExtractor:
                 album_id = href.split('=')[-1]
                 album_title = a.get_text()
                 album = Album(album_id, album_title)
+        assert title and singers and album and cover_img
         return MusicMetaInfo(mid, title, list(singers.values()), album, cover_img)
 
 
