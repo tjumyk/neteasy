@@ -10,7 +10,9 @@ It is really annoying when you have a lot of cached music files but are not able
 
 ## System Support
 
-Currently, **only Linux** is supported. However, the support for MacOS or Windows seems not hard to implement. Welcome to contribute! :smile: 
+Currently, we support **Windows 10** and **Ubuntu 16.04**. 
+
+However, the support for MacOS seems not hard to implement. Welcome to contribute! :smile: 
 
 ## Disclaimer
 
