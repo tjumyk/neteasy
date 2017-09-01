@@ -4,3 +4,4 @@
 *.pyc
 
 meta_cache/
+.venv

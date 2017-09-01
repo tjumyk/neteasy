@@ -38,7 +38,7 @@ def _scan():
     scan_completed = 0
     for f in files:
         if not CacheScanner.check_file_md5(f.path, f.md5):
-            print('[Warning] %s is corrupted' % f)
+            print('[Warning] %s is corrupted' % repr(f))
             continue
         meta = _get_meta_info(f.mid)
         music = Music(f.mid, meta, f)
