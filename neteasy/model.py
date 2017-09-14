@@ -59,12 +59,13 @@ class Singer:
 
 
 class MusicMetaInfo:
-    def __init__(self, mid, title, singers, album, cover_img):
+    def __init__(self, mid, title, singers, album, cover_img, cover_img_alt=None):
         self.mid = mid
         self.title = title
         self.singers = singers
         self.album = album
         self.cover_img = cover_img
+        self.cover_img_alt = cover_img_alt
 
     def to_obj(self):
         d = dict(self.__dict__)
@@ -79,12 +80,13 @@ class MusicMetaInfo:
         return MusicMetaInfo(**obj)
 
     def __str__(self):
-        return "ID: %s\nTitle: %s\nSingers: %s\nAlbum: %s\nCover Image: %s" % (
+        return "ID: %s\nTitle: %s\nSingers: %s\nAlbum: %s\nCover Image: %s\nCover Image Alt: %s" % (
             self.mid,
             self.title,
             ', '.join([str(s) for s in self.singers]),
             self.album,
-            self.cover_img
+            self.cover_img,
+            self.cover_img_alt
         )
 
 

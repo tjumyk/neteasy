@@ -63,7 +63,7 @@
         <div class="column" ng-repeat="m in music_list">
             <div class="ui centered fluid card">
                 <div class="image">
-                    <img ng-src="{{m.meta.cover_img}}?param=320y320">
+                    <img ng-src="{{m.meta.cover_img_alt || m.meta.cover_img}}?param=320y320">
                 </div>
                 <div class="content">
                     <a class="header">{{m.meta.title}}</a>

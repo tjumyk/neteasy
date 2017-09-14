@@ -57,7 +57,7 @@
         if ($scope.player) {
           $scope.player.stop();
         }
-        $scope.player = AV.Player.fromURL("/file/" + music.mid);
+        $scope.player = AV.Player.fromURL("/music/" + music.mid);
         return $scope.player.play();
       };
       $scope.$watch('scan_progress.total', function(total) {

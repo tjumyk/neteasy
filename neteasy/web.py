@@ -4,12 +4,15 @@ from bs4 import BeautifulSoup
 from neteasy.model import Singer, Album, MusicMetaInfo
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
+session = requests.session()
+session.headers['user-agent'] = USER_AGENT
+session.headers['referer'] = 'http://music.163.com/'
 
 
 class WebInfoExtractor:
     @staticmethod
     def get_music_meta(mid):
-        r = requests.get("http://music.163.com/song?id=%s" % mid, headers={'user-agent': USER_AGENT})
+        r = session.get("http://music.163.com/song?id=%s" % mid)
         doc = BeautifulSoup(r.content, "html.parser")
         e_info = doc.select('.m-lycifo')[0]
 
@@ -33,6 +36,6 @@ class WebInfoExtractor:
         assert title and singers and album and cover_img
         return MusicMetaInfo(mid, title, list(singers.values()), album, cover_img)
 
-
-if __name__ == '__main__':
-    print(WebInfoExtractor.get_music_meta('108468'))
+    @staticmethod
+    def get_from_url(url):
+        return session.get(url).content

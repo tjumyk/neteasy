@@ -15,8 +15,11 @@ import_cache_folder = config['import_cache_folder'] or None
 scanner = CacheScanner.get_scanner(import_cache_folder)
 
 META_CACHE_FOLDER = config['meta_cache_folder']
+COVER_CACHE_FOLDER = config['cover_cache_folder']
 if not os.path.isdir(META_CACHE_FOLDER):
     os.makedirs(META_CACHE_FOLDER)
+if not os.path.isdir(COVER_CACHE_FOLDER):
+    os.makedirs(COVER_CACHE_FOLDER)
 
 scan_total = 0
 scanning = False
@@ -62,6 +65,15 @@ def _get_meta_info(mid):
             return MusicMetaInfo.from_obj(json.load(f))
     print('Requesting web for meta data of music (id=%s)...' % mid)
     meta = WebInfoExtractor.get_music_meta(mid)
+
+    if meta.cover_img is not None:
+        ext = os.path.splitext(meta.cover_img)[1]
+        cover_name = '%s%s' % (str(mid), ext)
+        cover_path = os.path.join(COVER_CACHE_FOLDER, cover_name)
+        img = WebInfoExtractor.get_from_url(meta.cover_img)
+        with open(cover_path, 'wb') as f2:
+            f2.write(img)
+        meta.cover_img_alt = "/cover/%s" % cover_name
     with open(meta_path, 'w') as f:
         json.dump(meta.to_obj(), f, indent=4)
     return meta
@@ -93,13 +105,18 @@ def scan():
     return jsonify([m.to_obj() for m in music_list])
 
 
-@app.route('/file/<mid>')
+@app.route('/music/<mid>')
 def get_music_file(mid):
     for m in music_list:
         if m.mid == mid:
             path = m.file.path
             return send_from_directory(os.path.dirname(path), os.path.basename(path))
     return jsonify(error='Music [mid=%s] not found' % mid), 404
+
+
+@app.route('/cover/<filename>')
+def get_cover_image(filename):
+    return send_from_directory(os.path.abspath(COVER_CACHE_FOLDER), filename)
 
 
 def run_server():

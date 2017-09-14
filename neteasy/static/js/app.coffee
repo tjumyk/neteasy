@@ -57,7 +57,7 @@ angular.module 'app', ['ngSanitize']
   $scope.play_music = (music)->
     if $scope.player
       $scope.player.stop()
-    $scope.player = AV.Player.fromURL("/file/#{music.mid}")
+    $scope.player = AV.Player.fromURL("/music/#{music.mid}")
     $scope.player.play()
 
   $scope.$watch 'scan_progress.total', (total)->
