@@ -105,10 +105,14 @@ def scan():
     return jsonify([m.to_obj() for m in music_list])
 
 
-@app.route('/music/<mid>')
-def get_music_file(mid):
+@app.route('/music/<mid_format>')
+def get_music_file(mid_format):
+    mid, fmt = os.path.splitext(mid_format)
+    fmt = fmt.strip('.')
     for m in music_list:
         if m.mid == mid:
+            if m.file.file_format != fmt:
+                return jsonify(error='Music [mid=%s] is not in "%s" format' % (mid, fmt)), 400
             path = m.file.path
             return send_from_directory(os.path.dirname(path), os.path.basename(path))
     return jsonify(error='Music [mid=%s] not found' % mid), 404

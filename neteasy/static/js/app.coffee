@@ -55,10 +55,19 @@ angular.module 'app', ['ngSanitize']
     return moment.unix(time).toNow()
 
   $scope.play_music = (music)->
-    if $scope.player
-      $scope.player.stop()
-    $scope.player = AV.Player.fromURL("/music/#{music.mid}")
-    $scope.player.play()
+    if $scope.sound
+      $scope.sound.stop()
+    $scope.sound = new Howl
+      src: ["/music/#{music.mid}.#{music.file.file_format}"]
+    $scope.sound.on 'end', ->
+      $scope.sound.play()
+    $scope.sound.play()
+
+  $scope.get_download_name = (music)->
+    singer_names = []
+    for singer in music.meta.singers
+      singer_names.push(singer.name)
+    return "#{music.meta.title} - #{singer_names.join(',')}.#{music.file.file_format}"
 
   $scope.$watch 'scan_progress.total', (total)->
     total = total or 0

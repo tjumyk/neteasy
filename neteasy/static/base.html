@@ -16,9 +16,7 @@
     <script src="/static/vendor/angular/angular.min.js"></script>
     <script src="/static/vendor/angular/angular-sanitize.min.js"></script>
     <script src="/static/vendor/moment/moment.min.js"></script>
-    <script src="/static/vendor/audiocogs/aurora.js"></script>
-    <script src="/static/vendor/audiocogs/mp3.js"></script>
-    <script src="/static/vendor/audiocogs/flac.js"></script>
+    <script src="/static/vendor/howler/howler.core.min.js"></script>
 
     <script src="/static/js/app.js"></script>
     <script src="/static/js/util.js"></script>
@@ -72,6 +70,10 @@
                     </div>
                 </div>
                 <div class="extra content">
+                    <span class="right floated">
+                        <i class="file audio outline icon"></i>
+                        <a ng-href="/music/{{m.mid}}.{{m.file.file_format}}" ng-attr-download="{{get_download_name(m)}}">{{m.file.file_format}}</a>
+                    </span>
                     <span>
                         <i class="user icon"></i>
                         <a ng-href="http://music.163.com/#/artist?id={{s.sid}}" ng-repeat="s in m.meta.singers" target="_blank" class="link-singer">{{s.name}}</a>

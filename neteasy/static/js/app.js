@@ -54,11 +54,26 @@
         return moment.unix(time).toNow();
       };
       $scope.play_music = function(music) {
-        if ($scope.player) {
-          $scope.player.stop();
+        if ($scope.sound) {
+          $scope.sound.stop();
         }
-        $scope.player = AV.Player.fromURL("/music/" + music.mid);
-        return $scope.player.play();
+        $scope.sound = new Howl({
+          src: ["/music/" + music.mid + "." + music.file.file_format]
+        });
+        $scope.sound.on('end', function() {
+          return $scope.sound.play();
+        });
+        return $scope.sound.play();
+      };
+      $scope.get_download_name = function(music) {
+        var i, len, ref, singer, singer_names;
+        singer_names = [];
+        ref = music.meta.singers;
+        for (i = 0, len = ref.length; i < len; i++) {
+          singer = ref[i];
+          singer_names.push(singer.name);
+        }
+        return music.meta.title + " - " + (singer_names.join(',')) + "." + music.file.file_format;
       };
       $scope.$watch('scan_progress.total', function(total) {
         total = total || 0;
