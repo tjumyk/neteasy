@@ -4,6 +4,7 @@
     "port": 8080,
     "threaded": true
   },
+  "scan_threads": 8,
   "import_cache_folder": null,
   "meta_cache_folder": "meta_cache",
   "cover_cache_folder": "cover_cache"

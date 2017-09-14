@@ -1,5 +1,7 @@
 import json
 import os
+import threading
+from multiprocessing.pool import ThreadPool
 
 from flask import Flask, jsonify, send_from_directory
 
@@ -24,8 +26,30 @@ if not os.path.isdir(COVER_CACHE_FOLDER):
 scan_total = 0
 scanning = False
 scan_completed = 0
+_scan_completed_lock = threading.Lock()
+SCAN_THREADS = config['scan_threads']
 never_scan = True
 music_list = []
+
+
+def _scan_for_one(file):
+    global scan_completed
+    try:
+        if not CacheScanner.check_file_md5(file.path, file.md5):
+            print('[Warning] %s is corrupted' % repr(file))
+            return
+        try:
+            meta = _get_meta_info(file.mid)
+        except Exception as e:
+            print("[Warning] Failed to get the meta data of music (id=%s)" % file.mid)
+            print(e)
+            return
+        music = Music(file.mid, meta, file)
+        music_list.append(music)
+    finally:
+        _scan_completed_lock.acquire()
+        scan_completed += 1
+        _scan_completed_lock.release()
 
 
 def _scan():
@@ -39,21 +63,8 @@ def _scan():
     files = list(scanner.scan())
     scan_total = len(files)
     scan_completed = 0
-    for file in files:
-        if not CacheScanner.check_file_md5(file.path, file.md5):
-            print('[Warning] %s is corrupted' % repr(file))
-            scan_completed += 1
-            continue
-        try:
-            meta = _get_meta_info(file.mid)
-        except Exception as e:
-            print("[Warning] Failed to get the meta data of music (id=%s)" % file.mid)
-            print(e)
-            scan_completed += 1
-            continue
-        music = Music(file.mid, meta, file)
-        music_list.append(music)
-        scan_completed += 1
+    with ThreadPool(SCAN_THREADS) as pool:
+        pool.map(_scan_for_one, files)
     scanning = False
     print('Scanning finished!')
 
