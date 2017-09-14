@@ -37,6 +37,17 @@ class CacheScanner:
                 block = _f.read(BLOCK_SIZE)
             return hasher.hexdigest() == md5
 
+    @staticmethod
+    def detect_file_format(file_path):
+        with open(file_path, 'rb') as _f:
+            header = _f.read(16)
+            if header.startswith(b'ID3'):
+                return 'mp3'
+            elif header.startswith(b'fLaC\x00\x00\x00"'):
+                return 'flac'
+            else:
+                return None
+
 
 class LinuxCacheScanner(CacheScanner):
     def __init__(self, cache_folder):
@@ -60,16 +71,16 @@ class LinuxCacheScanner(CacheScanner):
             return True
 
     @staticmethod
-    def _scan_format(folder, file_format):
-        for f in glob.iglob(os.path.join(folder, '*.%s' % file_format)):
+    def _scan_files(folder, file_extension):
+        for f in glob.iglob(os.path.join(folder, '*.%s' % file_extension)):
             file_name = os.path.basename(f)
-            mid, zone, md5 = file_name[:-len(file_format) - 1].split('-')
+            mid, zone, md5 = file_name[:-len(file_extension) - 1].split('-')
             mtime = os.path.getmtime(f)
-            yield MusicFile(mid, f, md5, file_format, mtime)
+            yield MusicFile(mid, f, md5, file_extension, mtime)
 
     def scan(self):
-        for file_format in ['mp3', 'flac']:
-            for f in LinuxCacheScanner._scan_format(self.cache_folder, file_format):
+        for ext in ['mp3', 'flac']:
+            for f in LinuxCacheScanner._scan_files(self.cache_folder, ext):
                 yield f
 
 
@@ -95,17 +106,20 @@ class WindowsCacheScanner(CacheScanner):
             return True
 
     @staticmethod
-    def _scan_format(folder, file_format):
-        # Currently, this is identical to the one in LinuxCacheScanner, not sure if it also applies to MacOS version
-        for f in glob.iglob(os.path.join(folder, '*.%s' % file_format)):
+    def _scan_files(folder, file_extension):
+        for f in glob.iglob(os.path.join(folder, '*.%s' % file_extension)):
             file_name = os.path.basename(f)
-            file_name_without_extension = file_name[:-len(file_format) - 1]
+            file_name_without_extension = file_name[:-len(file_extension) - 1]
             mid, zone, md5 = file_name_without_extension.split('-')
             mtime = os.path.getmtime(f)
+            file_format = CacheScanner.detect_file_format(f)  # requires file format detection
+            if file_format is None:  # detection failed
+                print('Failed to detect the file format of "%s"' % f)
+                continue
             yield MusicFile(mid, f, md5, file_format, mtime)
 
     def scan(self):
-        for f in WindowsCacheScanner._scan_format(self.cache_folder, 'uc'):
+        for f in WindowsCacheScanner._scan_files(self.cache_folder, 'uc'):
             yield f
 
 
