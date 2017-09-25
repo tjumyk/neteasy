@@ -28,14 +28,14 @@ class CacheScanner:
         raise NotImplementedError()
 
     @staticmethod
-    def check_file_md5(file_path, md5):
+    def get_file_md5(file_path):
         with open(file_path, 'rb') as _f:
             hasher = hashlib.md5()
             block = _f.read(BLOCK_SIZE)
             while block:
                 hasher.update(block)
                 block = _f.read(BLOCK_SIZE)
-            return hasher.hexdigest() == md5
+            return hasher.hexdigest()
 
     @staticmethod
     def detect_file_format(file_path):

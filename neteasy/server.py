@@ -18,10 +18,13 @@ scanner = CacheScanner.get_scanner(import_cache_folder)
 
 META_CACHE_FOLDER = config['meta_cache_folder']
 COVER_CACHE_FOLDER = config['cover_cache_folder']
+MD5_CACHE_FOLDER = config['md5_cache_folder']
 if not os.path.isdir(META_CACHE_FOLDER):
     os.makedirs(META_CACHE_FOLDER)
 if not os.path.isdir(COVER_CACHE_FOLDER):
     os.makedirs(COVER_CACHE_FOLDER)
+if not os.path.isdir(MD5_CACHE_FOLDER):
+    os.makedirs(MD5_CACHE_FOLDER)
 
 scan_total = 0
 scanning = False
@@ -35,7 +38,19 @@ music_list = []
 def _scan_for_one(file):
     global scan_completed
     try:
-        if not CacheScanner.check_file_md5(file.path, file.md5):
+        md5 = None
+        md5_cache_file = os.path.join(MD5_CACHE_FOLDER, '%s.json' % file.mid)
+        if os.path.isfile(md5_cache_file):
+            with open(md5_cache_file) as f_md5_cache:
+                md5_cache = json.load(f_md5_cache)
+            if md5_cache['mtime'] == file.mtime:
+                md5 = md5_cache['md5']
+        if md5 is None:
+            md5 = CacheScanner.get_file_md5(file.path)
+            with open(md5_cache_file, 'w') as f_md5_cache:
+                md5_cache = {'mtime': file.mtime, 'md5': md5}
+                json.dump(md5_cache, f_md5_cache)
+        if md5 != file.md5:
             print('[Warning] %s is corrupted' % repr(file))
             return
         try:

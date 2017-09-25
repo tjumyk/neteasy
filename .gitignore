@@ -5,4 +5,5 @@
 
 meta_cache/
 cover_cache/
+md5_cache/
 .venv

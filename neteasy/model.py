@@ -1,10 +1,10 @@
 class MusicFile:
-    def __init__(self, mid, path, md5, file_format, creation_time):
+    def __init__(self, mid, path, md5, file_format, mtime):
         self.mid = mid
         self.path = path
         self.md5 = md5
         self.file_format = file_format
-        self.creation_time = creation_time
+        self.mtime = mtime
 
     def to_obj(self):
         return dict(self.__dict__)
@@ -17,12 +17,12 @@ class MusicFile:
         return "<MusicFile mid=%s format=%s md5=%s>" % (self.mid, self.file_format, self.md5)
 
     def __str__(self):
-        return "ID: %s\nPath: %s\nMD5: %s\nFile Format: %s\nCreation Time: %s" % (
+        return "ID: %s\nPath: %s\nMD5: %s\nFile Format: %s\nModification Time: %s" % (
             self.mid,
             self.path,
             self.md5,
             self.file_format,
-            self.creation_time
+            self.mtime
         )
 
 
