@@ -6,7 +6,7 @@
   },
   "scan_threads": 8,
   "import_cache_folder": null,
-  "meta_cache_folder": "meta_cache",
-  "cover_cache_folder": "cover_cache",
-  "md5_cache_folder": "md5_cache"
+  "meta_cache_folder": "cache/meta",
+  "cover_cache_folder": "cache/cover",
+  "md5_cache_folder": "cache/md5"
 }

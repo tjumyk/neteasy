@@ -3,7 +3,5 @@
 
 *.pyc
 
-meta_cache/
-cover_cache/
-md5_cache/
+cache/
 .venv
