@@ -49,7 +49,7 @@ def _scan_for_one(file):
             md5 = CacheScanner.get_file_md5(file.path)
             with open(md5_cache_file, 'w') as f_md5_cache:
                 md5_cache = {'mtime': file.mtime, 'md5': md5}
-                json.dump(md5_cache, f_md5_cache)
+                json.dump(md5_cache, f_md5_cache, indent=4)
         if md5 != file.md5:
             print('[Warning] %s is corrupted' % repr(file))
             return
