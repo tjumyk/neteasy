@@ -3,8 +3,10 @@ import os
 import threading
 from multiprocessing.pool import ThreadPool
 
-from flask import Flask, jsonify, send_from_directory
-
+import pystray
+import requests
+from PIL import Image
+from flask import Flask, jsonify, send_from_directory, request
 from neteasy.cache import CacheScanner
 from neteasy.model import MusicMetaInfo, Music
 from neteasy.web import WebInfoExtractor
@@ -149,5 +151,41 @@ def get_cover_image(filename):
     return send_from_directory(os.path.abspath(COVER_CACHE_FOLDER), filename)
 
 
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    return 'Server shutting down...'
+
+
 def run_server():
     app.run(**config['server'])
+
+
+def run_sys_tray():
+    icon = pystray.Icon('neteasy')
+    icon.icon = Image.open('neteasy/static/image/logo-64.png')
+    icon.title = 'Neteasy Music Server'
+    server_config = config['server']
+    server_url = 'http://%s:%d' % (server_config['host'], server_config['port'])
+
+    def _sys_tray_main(_icon: pystray.Icon):
+        _icon.visible = True
+        run_server()
+
+    def _open_browser():
+        import webbrowser
+        webbrowser.open(server_url)
+
+    def _sys_tray_stop():
+        requests.post("%s/shutdown" % server_url)
+        icon.visible = False
+        icon.stop()
+
+    icon.menu = pystray.Menu(
+        pystray.MenuItem('Open', _open_browser),
+        pystray.MenuItem('Stop Server', _sys_tray_stop, default=True)
+    )
+    icon.run(_sys_tray_main)
