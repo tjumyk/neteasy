@@ -3,9 +3,6 @@ import os
 import threading
 from multiprocessing.pool import ThreadPool
 
-import pystray
-import requests
-from PIL import Image
 from flask import Flask, jsonify, send_from_directory, request
 from neteasy.cache import CacheScanner
 from neteasy.model import MusicMetaInfo, Music
@@ -165,6 +162,11 @@ def run_server():
 
 
 def run_sys_tray():
+    import webbrowser
+    import pystray
+    from PIL import Image
+    import requests
+
     server_config = config['server']
     server_url = 'http://%s:%d' % (server_config['host'], server_config['port'])
 
@@ -173,7 +175,6 @@ def run_sys_tray():
         run_server()
 
     def _open_browser():
-        import webbrowser
         webbrowser.open(server_url)
 
     def _sys_tray_stop():
