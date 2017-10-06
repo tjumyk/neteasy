@@ -202,7 +202,7 @@ def run_sys_tray():
         icon=Image.open('neteasy/static/image/logo-64.png'),
         title='Neteasy Music Server',
         menu=pystray.Menu(
-            pystray.MenuItem('Open', _open_browser),
+            pystray.MenuItem('Open', _open_browser, default=True),
             pystray.MenuItem('Stop Server', _sys_tray_stop)
         )
     )
