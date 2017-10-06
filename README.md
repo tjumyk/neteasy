@@ -24,12 +24,16 @@ However, the support for MacOS seems not hard to implement. Welcome to contribut
 
 ## How-To-Run
 
-1. Prepare a virtual environment with **Python 3** (use `virtualenv -p python3 ...`)
-2. Activate the virtual environment
-3. Navigate to the **root folder** of this repo
-4. Install the dependencies by `pip install -r requirements.txt`
-5. Change the configurations in `config.json` if required
-6. Start the server via `python start.py`
+1. Install system-specific dependencies
+   1. **Windows**: no need to install anything at this step
+   2. **Linux**: `PyGObject` is required, please refer to [this documentation](https://pygobject.readthedocs.io/en/latest/getting_started.html) for installment instructions
+   3. **MacOS**: currently unknown
+2. Prepare a virtual environment with **Python 3** (use `virtualenv -p python3 --system-site-packages ...`)
+3. Activate the virtual environment
+4. Navigate to the **root folder** of this repo
+5. Install the dependencies by `pip install -r requirements.txt`
+6. Change the configurations in `config.json` if required
+7. Start the server via `python start.py`
 
 ## Screenshot
 
