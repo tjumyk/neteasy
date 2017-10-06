@@ -183,7 +183,9 @@ def run_sys_tray():
                 r = requests.get("%s/api/status" % server_url)
                 if r.status_code == 200:
                     _open_browser()
-                    break
+                else:
+                    print('[Warning] Server is in abnormal state')
+                break
             except ConnectionError:
                 pass
 
