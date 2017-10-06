@@ -165,9 +165,6 @@ def run_server():
 
 
 def run_sys_tray():
-    icon = pystray.Icon('neteasy')
-    icon.icon = Image.open('neteasy/static/image/logo-64.png')
-    icon.title = 'Neteasy Music Server'
     server_config = config['server']
     server_url = 'http://%s:%d' % (server_config['host'], server_config['port'])
 
@@ -184,8 +181,14 @@ def run_sys_tray():
         icon.visible = False
         icon.stop()
 
-    icon.menu = pystray.Menu(
-        pystray.MenuItem('Open', _open_browser),
-        pystray.MenuItem('Stop Server', _sys_tray_stop, default=True)
+    icon = pystray.Icon(
+        name='neteasy',
+        icon=Image.open('neteasy/static/image/logo-64.png'),
+        title='Neteasy Music Server',
+        menu=pystray.Menu(
+            pystray.MenuItem('Open', _open_browser),
+            pystray.MenuItem('Stop Server', _sys_tray_stop)
+        )
     )
+
     icon.run(_sys_tray_main)
