@@ -166,13 +166,26 @@ def run_sys_tray():
     import pystray
     from PIL import Image
     import requests
+    import time
 
     server_config = config['server']
     server_url = 'http://%s:%d' % (server_config['host'], server_config['port'])
 
     def _sys_tray_main(_icon: pystray.Icon):
         _icon.visible = True
+        threading.Thread(target=_test_server_ready).start()
         run_server()
+
+    def _test_server_ready():
+        while True:
+            time.sleep(0.2)
+            try:
+                r = requests.get("%s/api/status" % server_url)
+                if r.status_code == 200:
+                    _open_browser()
+                    break
+            except ConnectionError:
+                pass
 
     def _open_browser():
         webbrowser.open(server_url)
