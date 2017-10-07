@@ -1,9 +1,13 @@
 import json
 import os
+import sys
 import threading
+import time
 from multiprocessing.pool import ThreadPool
 
+import requests
 from flask import Flask, jsonify, send_from_directory, request
+
 from neteasy.cache import CacheScanner
 from neteasy.model import MusicMetaInfo, Music
 from neteasy.web import WebInfoExtractor
@@ -12,8 +16,9 @@ app = Flask(__name__)
 
 with open('config.json') as f:
     config = json.load(f)
-import_cache_folder = config['import_cache_folder'] or None
-scanner = CacheScanner.get_scanner(import_cache_folder)
+SERVER_URL = 'http://%s:%d' % (config['server']['host'], config['server']['port'])
+IMPORT_CACHE_FOLDER = config['import_cache_folder'] or None
+scanner = CacheScanner.get_scanner(IMPORT_CACHE_FOLDER)
 
 META_CACHE_FOLDER = config['meta_cache_folder']
 COVER_CACHE_FOLDER = config['cover_cache_folder']
@@ -161,39 +166,39 @@ def run_server():
     app.run(**config['server'])
 
 
+def shutdown_server():
+    requests.post("%s/shutdown" % SERVER_URL)
+
+
+def _wait_server_ready(callback):
+    while True:
+        time.sleep(0.2)
+        try:
+            r = requests.get("%s/api/status" % SERVER_URL)
+            if r.status_code == 200:
+                callback()
+            else:
+                print('[Warning] Server is in abnormal state')
+            break
+        except ConnectionError:
+            pass
+
+
 def run_sys_tray():
     import webbrowser
     import pystray
     from PIL import Image
-    import requests
-    import time
-
-    server_config = config['server']
-    server_url = 'http://%s:%d' % (server_config['host'], server_config['port'])
 
     def _sys_tray_main(_icon: pystray.Icon):
         _icon.visible = True
-        threading.Thread(target=_test_server_ready).start()
+        threading.Thread(target=_wait_server_ready, args=[_open_browser]).start()
         run_server()
 
-    def _test_server_ready():
-        while True:
-            time.sleep(0.2)
-            try:
-                r = requests.get("%s/api/status" % server_url)
-                if r.status_code == 200:
-                    _open_browser()
-                else:
-                    print('[Warning] Server is in abnormal state')
-                break
-            except ConnectionError:
-                pass
-
     def _open_browser():
-        webbrowser.open(server_url)
+        webbrowser.open(SERVER_URL)
 
     def _sys_tray_stop():
-        requests.post("%s/shutdown" % server_url)
+        shutdown_server()
         icon.visible = False
         icon.stop()
 
@@ -208,3 +213,24 @@ def run_sys_tray():
     )
 
     icon.run(_sys_tray_main)
+
+
+def run_cef():
+    from cefpython3 import cefpython as cef
+
+    assert cef.__version__ >= "55.3", "CEF Python v55.3+ is required"
+    threading.Thread(target=run_server).start()
+
+    class OnBeforeCloseHandler:
+        def OnBeforeClose(self, browser):
+            shutdown_server()
+
+    def _open_cef_window():
+        sys.excepthook = cef.ExceptHook
+        cef.Initialize()
+        browser = cef.CreateBrowserSync(url=SERVER_URL, window_title="NetEasy Music Player")
+        browser.SetClientHandler(OnBeforeCloseHandler())
+        cef.MessageLoop()
+        cef.Shutdown()
+
+    _wait_server_ready(_open_cef_window)
